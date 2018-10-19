@@ -106,7 +106,7 @@ export default{
   },
   created(){
     const vm =this;
-    this.$http.get("http://localhost:3000/bus").then((response)=>{
+    this.$http.get(`${process.env.VUE_APP_API}/bus`).then((response)=>{
       let temp = response.data.BusDynInfo.BusInfo.Route;
       vm.items = temp;
     })
@@ -123,7 +123,7 @@ export default{
           this.selectBus = item;
         }
       })
-      this.$http.get(`http://localhost:3000/station?id=${this.selectBus.ID}`).then((response)=>{
+      this.$http.get(`${process.env.VUE_APP_API}/station?id=${this.selectBus.ID}`).then((response)=>{
         let temp = response.data.BusDynInfo.BusInfo.Stop;
         this.stations = temp;
       })
