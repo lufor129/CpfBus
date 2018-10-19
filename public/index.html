@@ -7,6 +7,24 @@
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css"  crossorigin="anonymous">
     <title>CpfBus</title>
+    <script>
+      function setup(){
+        if(cpf)
+        cpf.setPinMode('["resetPin"],["grove_newChainableLED", 7, 8, 1]'); 
+      }
+      setup();
+      function changeColor(Rled , Gled , Bled) {
+        console.log(Rled,Gled,Bled);
+        if(cpf){
+          cpf.setChainableLed("0," + Rled + "," + Gled + "," + Bled + ";");
+        }
+      }
+    </script>
+    <style>
+      html,body{
+        width:100%;
+      }
+    </style>
   </head>
   <body>
     <noscript>

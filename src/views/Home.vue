@@ -6,11 +6,11 @@
           <v-card-title class="headline font-weight-regular green darken-2 white--text">公車車號</v-card-title>
           <v-card-text>
             <v-subheader class="pa-0">車種
-              <v-btn color="red" @click="bustype='紅';select=''" fab dark small>紅</v-btn>
-              <v-btn color="orange"  @click="bustype='橘';select=''" fab dark small>橘</v-btn>
-              <v-btn color="warning"  @click="bustype='幹線';select=''" fab dark small>幹線</v-btn>
-              <v-btn color="info"  @click="bustype='快線';select=''" fab dark small>快線</v-btn>
-              <v-btn color="green"  @click="bustype='all';select=''" fab dark small>全</v-btn>
+              <v-btn color="red" @click="bustype='紅';select='';selectStation=''" fab dark small>紅</v-btn>
+              <v-btn color="orange"  @click="bustype='橘';select='';selectStation=''" fab dark small>橘</v-btn>
+              <v-btn color="warning"  @click="bustype='幹線';select='';selectStation=''" fab dark small>幹線</v-btn>
+              <v-btn color="info"  @click="bustype='快線';select='';selectStation=''" fab dark small>快線</v-btn>
+              <v-btn color="green"  @click="bustype='all';select='';selectStation=''" fab dark small>全</v-btn>
             </v-subheader>
             <v-autocomplete
               v-model="select"
@@ -44,6 +44,7 @@
               item-value="SID"
               v-model="selectStation"
               v-if="select!=''"
+              @change="getLastTime"
             ></v-select>
             <v-img v-if="selectBus!= {}"
               :src="selectBus.routeMapImageUrl"
@@ -54,19 +55,34 @@
       </v-flex>
 
       <v-flex xs12>
-        <v-card>
-          <v-card-title class="headline font-weight-regular green darken-3  white--text" >選擇時間</v-card-title>
-          <v-card-text>
+        <v-card v-if="selectStation!=''">
+          <v-card-title class="headline font-weight-regular green darken-3  white--text" v-if="comeBus.comeTime!=''" >下一班時間 : {{comeBus.comeTime}}</v-card-title>
+          <v-card-title class="headline font-weight-regular green darken-3  white--text" v-else>已經沒班次咯</v-card-title>
+          <!-- <v-card-text>
             <v-time-picker v-model="time"  full-width color="green lighten-1"></v-time-picker>
-          </v-card-text>
+
+          </v-card-text> -->
         </v-card>
       </v-flex> 
     </v-layout>
     <v-layout row >
-      <v-btn color="success">儲存</v-btn>
+      <v-btn color="success" @click="checkInput">儲存</v-btn>
       <v-btn color="error" @click="clearAll">重設</v-btn>
     </v-layout>
-
+    <v-snackbar
+      v-model="snackbar"
+      color="warning"
+      :timeout=1000
+    >
+      {{text}}
+      <v-btn
+        dark
+        flat
+        @click="snackbar = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -77,12 +93,15 @@ export default{
   data(){
     return{
       items:[1,2,3],
-      select:"",
       time:null,
       selectBus:{},
       bustype:"all",
       stations:[],
-      selectStation:""
+      selectStation:"",
+      snackbar:false,
+      text:"",
+      comeBus:{},
+      select:""
     }
   },
   created(){
@@ -91,9 +110,14 @@ export default{
       let temp = response.data.BusDynInfo.BusInfo.Route;
       vm.items = temp;
     })
+    if(this.$store.state.StationID!='' && this.$store.state.RouteID){
+      this.refresh();
+      this.repeatRefresh();
+    }
   },
   methods:{
-    getObj(){
+    getObj(e){
+      this.selectStation='';
       this.items.forEach((item,index)=>{
         if(item.ID == this.select){
           this.selectBus = item;
@@ -111,6 +135,45 @@ export default{
       this.select="";
       this.selectStation="";
       this.stations=[];
+      this.$store.dispatch("storeRoute",this.select);
+      this.$store.dispatch("storeStation",this.selectStation);
+    },
+    checkInput(){
+      this.text = '';
+      if(this.select =='' || this.selectStation == ''){
+        this.text = " 資料不完整"
+      }else if(this.comeBus.comeTime==''){
+        this.text = "已經沒公車了喔";
+      }else{
+        this.$store.dispatch("storeRoute",this.select);
+        this.$store.dispatch("storeStation",this.selectStation);
+        this.$store.dispatch("setBusTime",this.comeBus.comeTime);
+        this.text="資料已儲存";
+        this.repeatRefresh();
+      }
+      this.snackbar = true;
+    },
+    getLastTime(){
+      const vm = this;
+      this.$http.get(`${process.env.VUE_APP_API}/getLastTime?RID=${vm.select}&BID=${vm.selectStation}`).then((response)=>{
+        vm.comeBus = response.data;
+      })
+    },
+    refresh(){
+      const vm = this;
+      let route = this.$store.state.RouteID;
+      this.select = route;
+      let station = this.$store.state.StationID;
+      this.$http.get(`${process.env.VUE_APP_API}/station?id=${route}`).then((response)=>{
+        vm.stations = response.data.BusDynInfo.BusInfo.Stop;
+        vm.selectStation = station;
+        vm.getLastTime();
+      })
+    },
+    repeatRefresh(){
+      setInterval(()=>{
+        this.refresh();
+      },1000*30);
     }
   },
   computed:{
@@ -126,7 +189,7 @@ export default{
         })
         return temp;
       }
-    }
+    },
   }
 }
 </script>
