@@ -120,6 +120,7 @@ export default{
       const vm = this;
       this.$http.get(`${process.env.VUE_APP_API}/busData?id=${this.routeId}`).then((response)=>{
         let temp = response.data.BusDynInfo[0].BusInfo[0].BusData;
+        vm.busMarkers = [];
         vm.bus = temp;
         vm.bus.forEach((item,index)=>{
           vm.busMarkers.push({
