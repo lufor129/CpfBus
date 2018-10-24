@@ -26,8 +26,7 @@
             </template>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="info">在地圖中尋找</v-btn>
-            <v-btn flat @click="refresh">重新整理</v-btn>
+            <v-btn color="info" @click="refresh">重新整理</v-btn>
           </v-card-actions>
         </v-card>
       </v-stepper-content>

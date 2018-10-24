@@ -80,13 +80,13 @@ export default {
         let gap = ((Number(time[0])-this.RightHour)*60+(Number(time[1])-this.RightMin));
         //changeColor(15,20,77);
         switch(true){
-          case gap<0 : break;
-          case gap==0 : console.log("抵達中"); break;
-          case gap<=2 : console.log("2"); break;
-          case gap<=4 : console.log("4"); break;
-          case gap<=7 : console.log("7"); break;
-          case gap<=10: console.log("10"); break;
-          default: console.log("default");
+          case gap<0 : changeColor(0,0,0);
+          case gap<=1 : changeColor(255,0,0); break;
+          case gap<=2 : changeColor(255,255,0); break;
+          case gap<=6 : changeColor(0,255,0); break;
+          case gap<=8 : changeColor(0,0,255); break;
+          case gap<=10:changeColor(128,0,128); break;
+          default: changeColor(255,255,255);
         }
       }
     }
