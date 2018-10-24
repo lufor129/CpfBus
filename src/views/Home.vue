@@ -129,6 +129,7 @@ export default{
       })
     },
     clearAll(){
+      changeColor(255,255,255);
       this.bustype="all";
       this.selectBus={};
       this.time=null;

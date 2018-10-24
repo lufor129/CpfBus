@@ -22,7 +22,7 @@
               <div>下一班 : {{item.comeTime}} </div>
             </template>
             <template v-else>
-              <div>目前沒車開過來QQ</div>
+              <div>末班車已發QQ</div>
             </template>
           </v-card-text>
           <v-card-actions>

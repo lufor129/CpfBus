@@ -15,15 +15,15 @@
     <GmapInfoWindow :position="infoWindowPos" :options="infoOptions" :opened="infoWinOpen" @closeclick="infoWinOpen=false">
       <v-card>
         <v-card-title>
-          <div class="title">{{infoContent.name}}</div>
+          <h1 class="title">{{infoContent.name}}</h1>
         </v-card-title>
         <v-card-text>
-          <div class="body-2" v-if="infoContent.info == '1'">去程</div>
-          <div class="body-2" v-else>回程</div>
+          <h3 v-if="infoContent.info == '1'">去程</h3>
+          <h3 v-else>回程</h3>
         </v-card-text>
-        <v-card-actions>
-          <v-btn dark color="orange" :href="`https://maps.google.com.tw/?saddr=${NowPosition.lat},${NowPosition.lng}&daddr=${infoContent.lat},${infoContent.lng}`" >尋找地點</v-btn>
-        </v-card-actions>
+        <v-card-text v-if="infoContent.time!=undefined">
+          <h2>{{infoContent.time}}</h2>
+        </v-card-text>
       </v-card>
     </GmapInfoWindow>
     <GmapPolyline color="red" :path="path">
@@ -62,7 +62,8 @@ export default{
       path: [],
       bus:[],
       busMarkers:[],
-      NowPosition:{}
+      NowPosition:{},
+      stationTime:[]
     }
   },
   created(){
@@ -75,19 +76,32 @@ export default{
       let temp = response.data.BusDynInfo.BusInfo.Stop;
       vm.station = temp;
       vm.center = {lat:Number(vm.station[2].latitude), lng:Number(vm.station[2].longitude)};
-      vm.station.forEach((item,index)=>{
-        vm.markers.push({
-          position: {
+      this.$http.get(`${process.env.VUE_APP_API}/route?id=${this.routeId}`).then((response)=>{
+        let temp = response.data.BusDynInfo[0].BusInfo[0].Route[0].EstimateTime;
+        vm.stationTime = temp;
+        vm.station.forEach((item,index)=>{
+          let time ="";
+          if(Object.keys(vm.stationTime[index].ests[0]).length!=0  && vm.stationTime[index].comeTime!=''){
+            time = `下一班 : ${vm.stationTime[index].ests[0].est[0].est} 分鐘後`
+          }else if(vm.stationTime[index].comeTime!=''){
+            time = `下一班 : ${vm.stationTime[index].comeTime}`;
+          }else{
+            time = "末班車已發QQ";
+          }
+          vm.markers.push({
+            position: {
+              lat: Number(item.latitude),
+              lng: Number(item.longitude)
+            },
+            name:item.nameZh,
+            SID:item.SID,
+            goBack:item.GoBack,
+            time:time
+          })
+          vm.path.push({
             lat: Number(item.latitude),
             lng: Number(item.longitude)
-          },
-          name:item.nameZh,
-          SID:item.SID,
-          goBack:item.GoBack
-        })
-        vm.path.push({
-          lat: Number(item.latitude),
-          lng: Number(item.longitude)
+          })
         })
       })
     })
@@ -98,7 +112,7 @@ export default{
       if(marker.rectime!=undefined){
         this.infoContent= {name:`車號 : ${marker.name}`,info:marker.goBack,lat:marker.position.lat,lng:marker.position.lng};
       }else{
-        this.infoContent = {name:`${marker.name}站`,info:marker.goBack,lat:marker.position.lat,lng:marker.position.lng};
+        this.infoContent = {name:`${marker.name}站`,info:marker.goBack,lat:marker.position.lat,lng:marker.position.lng,time:marker.time};
       }
       this.infoWinOpen = true;
     },
