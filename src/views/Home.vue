@@ -1,5 +1,6 @@
 <template>
   <v-container fluid grid-list-lg>
+    <loading :active.sync="isLoading"></loading>
     <v-layout row wrap align-center >
       <v-flex xs12>
         <v-card>
@@ -87,9 +88,14 @@
 </template>
 
 <script>
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 export default{
   name:"Home",
+  components:{
+    Loading
+  },
   data(){
     return{
       items:[1,2,3],
@@ -101,14 +107,17 @@ export default{
       snackbar:false,
       text:"",
       comeBus:{},
-      select:""
+      select:"",
+      isLoading:false
     }
   },
   created(){
+    this.isLoading = true;
     const vm =this;
     this.$http.get(`${process.env.VUE_APP_API}/bus`).then((response)=>{
       let temp = response.data.BusDynInfo.BusInfo.Route;
       vm.items = temp;
+      vm.isLoading = false;
     })
     if(this.$store.state.StationID!='' && this.$store.state.RouteID){
       this.refresh();

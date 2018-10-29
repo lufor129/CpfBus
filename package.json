@@ -12,6 +12,7 @@
     "roboto-fontface": "*",
     "vue": "^2.5.17",
     "vue-axios": "^2.1.4",
+    "vue-loading-overlay": "^3.0.1",
     "vue-router": "^3.0.1",
     "vue2-google-maps": "^0.10.2",
     "vuetify": "^1.2.0",

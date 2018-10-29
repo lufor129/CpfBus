@@ -80,7 +80,7 @@ export default {
         let gap = ((Number(time[0])-this.RightHour)*60+(Number(time[1])-this.RightMin));
         //changeColor(15,20,77);
         switch(true){
-          case gap<0 : changeColor(0,0,0);
+          case gap<0 : changeColor(0,0,0); break;
           case gap<=1 : changeColor(255,0,0); break;
           case gap<=2 : changeColor(255,255,0); break;
           case gap<=6 : changeColor(0,255,0); break;
