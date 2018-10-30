@@ -70,6 +70,21 @@
       <v-btn color="success" @click="checkInput">儲存</v-btn>
       <v-btn color="error" @click="clearAll">重設</v-btn>
     </v-layout>
+    <v-layout v-if="myFavorite.length!=0">
+      <v-flex>
+        <v-select
+          :items="myFavorite"
+          item-text="Name"
+          menu-props="auto"
+          item-value="Route"
+          label="Select"
+          prepend-icon="fas fa-heart"
+          color="red"
+          v-model="favorite"
+          @change="chooseFavorite"
+        ></v-select>
+      </v-flex>
+    </v-layout>
     <v-snackbar
       v-model="snackbar"
       color="warning"
@@ -108,7 +123,9 @@ export default{
       text:"",
       comeBus:{},
       select:"",
-      isLoading:false
+      isLoading:false,
+      myFavorite:[],
+      favorite:null
     }
   },
   created(){
@@ -123,6 +140,14 @@ export default{
       this.refresh();
       this.repeatRefresh();
     }
+    
+    let myFavorite = JSON.parse(localStorage.getItem("myFavorite"));
+    if(myFavorite == undefined){
+      this.myFavorite = [];
+      localStorage.setItem('myFavorite',JSON.stringify([]));
+    }else{
+      this.myFavorite = myFavorite;
+    }
   },
   methods:{
     getObj(e){
@@ -135,6 +160,16 @@ export default{
       this.$http.get(`${process.env.VUE_APP_API}/station?id=${this.selectBus.ID}`).then((response)=>{
         let temp = response.data.BusDynInfo.BusInfo.Stop;
         this.stations = temp;
+      })
+    },
+    chooseFavorite(){
+      const vm = this;
+      this.select = this.favorite.ID;
+      let station = this.favorite.SID;
+      this.$http.get(`${process.env.VUE_APP_API}/station?id=${vm.select}`).then((response)=>{
+        vm.stations = response.data.BusDynInfo.BusInfo.Stop;
+        vm.selectStation = station;
+        vm.getLastTime();
       })
     },
     clearAll(){
@@ -158,6 +193,22 @@ export default{
         this.$store.dispatch("storeRoute",this.select);
         this.$store.dispatch("storeStation",this.selectStation);
         this.$store.dispatch("setBusTime",this.comeBus.comeTime);
+        let myFavorites = JSON.parse(localStorage.getItem('myFavorite'));
+        let saveItem = {Route:{
+          ID:this.select,
+          SID : this.selectStation,
+        },
+          Name:`${this.selectBus.nameZh} -- ${this.comeBus.StopName}`
+        };
+        let flag = false;
+        myFavorites.forEach(item=>{
+          if(item.Route.ID == this.select && item.Route.SID == this.selectStation) flag=true;
+        })
+        if(flag == false){
+          myFavorites.push(saveItem);
+          localStorage.setItem("myFavorite",JSON.stringify(myFavorites));
+          this.myFavorite = JSON.parse(localStorage.getItem('myFavorite'));
+        }
         this.text="資料已儲存";
         this.repeatRefresh();
       }
