@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang=zh-Hant><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=icon href=/CpfBus/favicon.ico><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.4.1/css/all.css crossorigin=anonymous><title>CpfBus</title><script>function setup(){
+        if(cpf)
+        cpf.setPinMode('["resetPin"],["grove_newChainableLED", 7, 8, 1]'); 
+      }
+      setup();
+      function changeColor(Rled , Gled , Bled) {
+        console.log(Rled,Gled,Bled);
+        if(cpf){
+          cpf.setChainableLed("0," + Rled + "," + Gled + "," + Bled + ";");
+        }
+      }</script><style>html,body{
+        width:100%;
+      }</style><link href=/CpfBus/css/chunk-vendors.f78656ee.css rel=preload as=style><link href=/CpfBus/js/app.e2e89b15.js rel=preload as=script><link href=/CpfBus/js/chunk-vendors.b0e6468a.js rel=preload as=script><link href=/CpfBus/css/chunk-vendors.f78656ee.css rel=stylesheet></head><body><noscript><strong>We're sorry but CpfBus doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=app></div><script src=/CpfBus/js/chunk-vendors.b0e6468a.js></script><script src=/CpfBus/js/app.e2e89b15.js></script></body></html>
