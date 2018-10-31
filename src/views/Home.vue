@@ -163,6 +163,7 @@ export default{
       })
     },
     chooseFavorite(){
+      this.bustype = 'all';
       const vm = this;
       this.select = this.favorite.ID;
       let station = this.favorite.SID;
@@ -173,7 +174,6 @@ export default{
       })
     },
     clearAll(){
-      changeColor(255,255,255);
       this.bustype="all";
       this.selectBus={};
       this.time=null;
@@ -182,6 +182,7 @@ export default{
       this.stations=[];
       this.$store.dispatch("storeRoute",this.select);
       this.$store.dispatch("storeStation",this.selectStation);
+      changeColor(255,255,255);
     },
     checkInput(){
       this.text = '';
